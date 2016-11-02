@@ -1,7 +1,6 @@
 import unittest
 import struct
 import pickle
-from hashlib import sha1
 import numpy as np
 from datasketch import minhash
 from datasketch.b_bit_minhash import bBitMinHash
