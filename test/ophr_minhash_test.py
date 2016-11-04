@@ -28,7 +28,7 @@ class TestMinhashOPHR(unittest.TestCase):
     def test_init(self):
         m1 = MinHashOPHR(4)
         m2 = MinHashOPHR(4)
-        self.assertTrue(np.array_equal(m1.hashvalues, m2.hashvalues))
+        self.assertTrue(np.array_equal(m1._hashvalues, m2._hashvalues))
         self.assertEqual(m1.k_val, m2.k_val)
         self.assertEqual(m1.rot_constant, m2.rot_constant)
 
@@ -39,20 +39,20 @@ class TestMinhashOPHR(unittest.TestCase):
     def test_update(self):
         m1 = MinHashOPHR(4, hashobj=FakeHash)
         m2 = MinHashOPHR(4, hashobj=FakeHash)
-        self.assertFalse(np.any(m1.hashvalues != m2.hashvalues))
+        self.assertFalse(np.any(m1._hashvalues != m2._hashvalues))
         m1.update(12)
-        self.assertTrue(np.any(m1.hashvalues != m2.hashvalues))
+        self.assertTrue(np.any(m1._hashvalues != m2._hashvalues))
 
     def test_dense_hashvalues(self):
         m1 = MinHashOPHR(4, hashobj=FakeHash)
         m2 = MinHashOPHR(4, hashobj=FakeHash)
-        self.assertTrue(np.all(m1.dense_hashvalues() == 2 ** 32))
+        self.assertTrue(np.all(m1.hashvalues == 2 ** 32))
 
         m1.update(12)
-        self.assertFalse(np.any(m1.dense_hashvalues() == 2 ** 32))
+        self.assertFalse(np.any(m1.hashvalues == 2 ** 32))
 
         m2.update(12)
-        self.assertTrue(np.all(m1.dense_hashvalues() == m2.dense_hashvalues()))
+        self.assertTrue(np.all(m1.hashvalues == m2.hashvalues))
 
     def test_jaccard(self):
         m1 = MinHashOPHR(4, hashobj=FakeHash)

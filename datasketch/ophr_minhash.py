@@ -14,38 +14,39 @@ _hash_range = (1 << 32)
 
 
 class MinHashOPHR(MinHash):
-    __slots__ = ('hashvalues', 'seed', 'hashobj', 'k_val', 'rot_constant')
+    __slots__ = ('_hashvalues', 'seed', 'hashobj', 'k_val', 'rot_constant')
 
     def __init__(self, k_val=128, hashobj=sha1):
         self.hashobj = hashobj
         self.k_val = k_val
-        self.hashvalues = self._init_hashvalues()
+        self._hashvalues = self._init__hashvalues()
         self.rot_constant = _max_hash / self.k_val + 1
 
-    def _init_hashvalues(self):
+    def _init__hashvalues(self):
         return np.ones(self.k_val, dtype=np.uint64) * _empty_val
 
     def update(self, b):
         hv = struct.unpack('<I', self.hashobj(b).digest()[:4])[0]
         bucket = hv % self.k_val
-        self.hashvalues[bucket] = min(self.hashvalues[bucket], hv)
+        self._hashvalues[bucket] = min(self._hashvalues[bucket], hv)
 
-    def dense_hashvalues(self):
-        dense_hashvals = copy.copy(self.hashvalues)
-        for i in range(len(self.hashvalues)):
-            if self.hashvalues[i] == _empty_val:
+    @property
+    def hashvalues(self):
+        dense_hashvals = copy.copy(self._hashvalues)
+        for i in range(len(self._hashvalues)):
+            if self._hashvalues[i] == _empty_val:
                 j = (i + 1) % self.k_val
                 distance = 1
                 while j != i:
-                    if self.hashvalues[j] != _empty_val:
-                        dense_hashvals[i] = (self.hashvalues[j] + self.rot_constant * distance) % _max_hash
+                    if self._hashvalues[j] != _empty_val:
+                        dense_hashvals[i] = (self._hashvalues[j] + self.rot_constant * distance) % _max_hash
                         break
                     j = (j + 1) % self.k_val
                     distance += 1
         return dense_hashvals
 
     def is_empty(self):
-        return not np.any(self.hashvalues != _empty_val)
+        return not np.any(self._hashvalues != _empty_val)
 
     def jaccard(self, other):
         if len(self) != len(other):
@@ -54,9 +55,9 @@ class MinHashOPHR(MinHash):
         if not isinstance(other, MinHashOPHR):
             raise ValueError("Cannot compute Jaccard of non-MinHashOPHR")
 
-        return np.float(np.count_nonzero(self.dense_hashvalues() == other.dense_hashvalues())) / \
+        return np.float(np.count_nonzero(self.hashvalues == other.hashvalues)) / \
                np.float(len(self))
 
     def __eq__(self, other):
         return self.hashobj == other.hashobj and \
-               np.array_equal(self.hashvalues, other.hashvalues)
+               np.array_equal(self._hashvalues, other._hashvalues)
