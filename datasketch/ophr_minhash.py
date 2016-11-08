@@ -14,12 +14,13 @@ _hash_range = (1 << 32)
 
 
 class MinHashOPHR(MinHash):
-    __slots__ = ('_hashvalues', 'seed', 'hashobj', 'k_val', 'rot_constant')
+    __slots__ = ('_hashvalues', '_dense_hashvalues', 'seed', 'hashobj', 'k_val', 'rot_constant')
 
     def __init__(self, k_val=128, hashobj=sha1):
         self.hashobj = hashobj
         self.k_val = k_val
         self._hashvalues = self._init__hashvalues()
+        self._dense_hashvalues = None  # set this later to cache dense hashvalues
         self.rot_constant = _max_hash / self.k_val + 1
 
     def _init__hashvalues(self):
@@ -32,18 +33,19 @@ class MinHashOPHR(MinHash):
 
     @property
     def hashvalues(self):
-        dense_hashvals = copy.copy(self._hashvalues)
-        for i in range(len(self._hashvalues)):
-            if self._hashvalues[i] == _empty_val:
-                j = (i + 1) % self.k_val
-                distance = 1
-                while j != i:
-                    if self._hashvalues[j] != _empty_val:
-                        dense_hashvals[i] = (self._hashvalues[j] + self.rot_constant * distance) % _max_hash
-                        break
-                    j = (j + 1) % self.k_val
-                    distance += 1
-        return dense_hashvals
+        if not self._dense_hashvalues:
+            self._dense_hashvalues = copy.copy(self._hashvalues)
+            for i in range(len(self._hashvalues)):
+                if self._hashvalues[i] == _empty_val:
+                    j = (i + 1) % self.k_val
+                    distance = 1
+                    while j != i:
+                        if self._hashvalues[j] != _empty_val:
+                            self._dense_hashvalues[i] = (self._hashvalues[j] + self.rot_constant * distance) % _max_hash
+                            break
+                        j = (j + 1) % self.k_val
+                        distance += 1
+        return self._dense_hashvalues
 
     def is_empty(self):
         return not np.any(self._hashvalues != _empty_val)
