@@ -1,3 +1,5 @@
+import hashlib
+import pickle
 import struct
 import unittest
 
@@ -87,6 +89,19 @@ class TestMinhashOPHR(unittest.TestCase):
         m2.update(11)
         self.assertEqual(m1, m2)
 
+    def test_serialization(self):
+        m1 = MinHashOPHR(4, hashobj=hashlib.sha256, hashstr='sha256')
+        out = pickle.dumps(m1)
+        m1_deserialized = pickle.loads(out)
+
+        self.assertEqual(m1.hashobj, m1_deserialized.hashobj)
+
+    def test_serialization_2(self):
+        m1 = MinHashOPHR(4, hashobj=hashlib.sha256, hashstr='sha256')
+        buf = bytearray(m1.bytesize())
+        m1.serialize(buf)
+        new_m1 = MinHashOPHR.deserialize(buf)
+        self.assertEqual(m1.hashobj, new_m1.hashobj)
 
 if __name__ == "__main__":
     unittest.main()
