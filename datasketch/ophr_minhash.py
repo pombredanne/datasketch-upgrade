@@ -43,6 +43,9 @@ class MinHashOPHR(MinHash):
 
     def update(self, b):
         hv = struct.unpack('<I', self.hashobj(b).digest()[:4])[0]
+        self._update(hv)
+
+    def _update(self, hv):
         bucket = hv % self.k_val
         self._hashvalues[bucket] = min(self._hashvalues[bucket], hv)
         self._dense_hashvalues = None
