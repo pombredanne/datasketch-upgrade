@@ -1,7 +1,7 @@
 import hashlib
 import struct
 
-from hyperloglog import HyperLogLog
+from datasketch.hyperloglog import HyperLogLog
 
 from datasketch.minhash import MinHash
 from datasketch.ophr_minhash import MinHashOPHR
