@@ -33,9 +33,9 @@ def _run_minhash(data, seed, p):
 
 def _run_test(data, n, p):
     logging.info("Running HyperLogLog with p = %d" % p)
-    hll_runs = [_run_hyperloglog(data, i, p) for i in xrange(n)]
+    hll_runs = [_run_hyperloglog(data, i, p) for i in range(n)]
     logging.info("Running MinHash with num_perm = %d" % 2**p)
-    minhash_runs = [_run_minhash(data, i, p) for i in xrange(n)]
+    minhash_runs = [_run_minhash(data, i, p) for i in range(n)]
     return (hll_runs, minhash_runs)
 
 

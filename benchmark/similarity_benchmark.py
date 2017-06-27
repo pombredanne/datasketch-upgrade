@@ -49,9 +49,9 @@ def _run_minhash(A, B, data, seed, num_perm, b):
     hasher = pyhash.murmur3_32()
     m1 = MinHash(num_perm=num_perm, hashobj=Hash)
     m2 = MinHash(num_perm=num_perm, hashobj=Hash)
-    for i in xrange(a_start, a_end):
+    for i in range(a_start, a_end):
         m1.update(hasher(data[i], seed=seed))
-    for i in xrange(b_start, b_end):
+    for i in range(b_start, b_end):
         m2.update(hasher(data[i], seed=seed))
     return [m1.jaccard(m2), _b_bit_minhash_jaccard(m1, m2, b)]
 
@@ -60,9 +60,9 @@ def _run_hyperloglog(A, B, data, seed, p):
     hasher = pyhash.murmur3_32()
     h1 = HyperLogLog(p=p, hashobj=Hash)
     h2 = HyperLogLog(p=p, hashobj=Hash)
-    for i in xrange(a_start, a_end):
+    for i in range(a_start, a_end):
         h1.update(hasher(data[i], seed=seed))
-    for i in xrange(b_start, b_end):
+    for i in range(b_start, b_end):
         h2.update(hasher(data[i], seed=seed))
     return _hyperloglog_jaccard(h1, h2)
 
@@ -70,9 +70,9 @@ def _run_test(A, B, data, n, p, num_perm, b):
     logging.info("Running MinHash with num_perm = %d" % num_perm)
     minhash_runs, bbit_runs = np.array([_run_minhash(A, B, data,
             i, num_perm, b)
-        for i in xrange(n)]).T
+        for i in range(n)]).T
     logging.info("Running HyperLogLog with p = %d" % p)
-    hll_runs = [_run_hyperloglog(A, B, data, i, p) for i in xrange(n)]
+    hll_runs = [_run_hyperloglog(A, B, data, i, p) for i in range(n)]
     return (minhash_runs, bbit_runs, hll_runs)
 
 
